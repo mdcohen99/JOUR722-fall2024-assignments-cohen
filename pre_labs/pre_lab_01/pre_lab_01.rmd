@@ -235,8 +235,8 @@ No code here; I want you to provide three questions that this data suggests to y
 
 **Answer**
 
-1.  
+1.  It provides the median number of seats per class, but that doesn't mean every seat is filled. Based on that, what is the average number of students actually enrolled in a class at UMD. The median may be the better way to approach this because of Maryland being a giant school and a lot of large lecture classes. How well is the school able to create small, focused classes, at a flagship institution?
 
-2.  
+2.  Following up on that, what is the professor to student ratio? Are professors being overwhelmed by the number of students?
 
-3.  
+3.  How does the number of classes and seats available compare with enrollement data? Is UMD providing enough class opportunities for a growing student population? Is it proportional?
