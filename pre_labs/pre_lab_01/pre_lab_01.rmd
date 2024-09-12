@@ -171,7 +171,7 @@ umd_courses |>
 
 Compared to the previous codeblock, how did the output change and what in the code changed it?
 
-**Answer**
+**Answer It is now filtered more specifically. We are now seeing how many classes each department is offering in each term instead of just the total number of classes per term.**
 
 ### Task 12: Other summary functions
 
@@ -187,7 +187,7 @@ umd_courses |>
   arrange(desc(total_seats))
 ```
 
-Compared to the previous codeblock, what has changed and how did that affect the result? **Answer**
+Compared to the previous codeblock, what has changed and how did that affect the result? **Answer We are now seeing the total number of seats available per term. We know there are 4,975 classes in the August 2022 term, and now we know additionally that there are a total of 230,796 seats available if you add up the total number of seats in all 4,975 classes.**
 
 ### Task 13: different kinds of summarizations
 
@@ -205,7 +205,7 @@ umd_courses |>
   arrange(desc(total_seats))
 ```
 
-Compared to the previous codeblock, what has changed and how did that affect the result? What do the top terms have in common? **Answer**
+Compared to the previous codeblock, what has changed and how did that affect the result? What do the top terms have in common? **Answer: We now have the seats broken down another way. Adding onto the total seats, we know have the mean number of seats in each class in each term. We also have the median number of seats available in each class in each term.**
 
 ### Task 14: more aggregations
 
@@ -219,17 +219,17 @@ umd_courses |>
     total_seats = sum(seats),
     mean_seats = mean(seats),
     median_seats = median(seats),
-    # add minimum seats here
-    # add maximum seats here
+    min_seats = min(seats),
+    max_seats = max(seats)
   ) |>
   arrange(desc(total_seats))
 ```
 
 Compared to the previous codeblock, what has changed and how did that affect the result? How is the data sorted?
 
-**Answer**
+**Answer: We now see which class has the most seats in each term and which has the least. We also could organize it to see which term has the class with the largest number of seats.**
 
-### Task 12: Questions
+### Task 15: Questions
 
 No code here; I want you to provide three questions that this data suggests to you. What would you like to ask it?
 
