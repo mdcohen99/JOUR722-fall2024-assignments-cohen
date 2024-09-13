@@ -93,11 +93,11 @@ umd_courses |>
 
 ```
 
-**A3 Elsa Barkley Brown teaches 73 classes, which is the most for any one professor. The Business and Management department is the dept. with the most course offerings.**
+**A3 Elsa Barkley Brown teaches 73 classes, which is the most for any one professor. The Business and Management department is the deptartment with the most course offerings.**
 
 ### **Q4** Given the results for Q3, what would have made it easier to find the answer? You don't have to know *how* to accomplish this; I want you to describe in words what would make the answer easier to see.
 
-**A4 I want to be able to combine it into one table so that I could see what dept. each instructor is in. It also would be easier to filter out the number of classes that have an "N/A" or "TBA" listing for instructor.**
+**A4 I want to be able to combine it into one table so that I could see what dept. each instructor is in. It also would be easier to filter out the number of classes that have an "N/A" or "TBA" listing for instructor, but I don't know how to filter the data in that manner.**
 
 ------------------------------------------------------------------------
 
