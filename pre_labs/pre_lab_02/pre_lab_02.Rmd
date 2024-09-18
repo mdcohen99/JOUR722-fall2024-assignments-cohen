@@ -310,7 +310,7 @@ Mutate is even more useful when combined with some additional functions. Let's k
 
 **Task** Run the following code and look at the output. Then write a sentence or two describing what you think the mutate statement is doing step by step.
 
-**Answer**
+**Answer The mutate function here is assuming that the new group columns of addresses that just list states should just be NA, unless it sees any of the state names in the address is one of the ones listed in the str_detect function. This will give us a count of how many times certain states appear**
 
 ```{r}
 maryland_expenses_with_state <- maryland_expenses |>
@@ -345,7 +345,7 @@ maryland_expenses_with_state |>
 
 Does this answer make sense to you? Why or why not?
 
-**Answer**
+**Answer This somewhat makes sense. I am a little unsure why the numbers I got back when I ran this code are so large, and wonder if I am misunderstanding the context of the numbers that appear. I think I was expecting more a count, but there is no count function in this. I am wondering if I did something wrong, but also a bit uncertain if I understand this data set shown in the mutated table.**
 
 Mutate is there to make your data more useful and to make it easier for you to ask more and better questions of it.
 
@@ -355,8 +355,8 @@ Now that you have seen how to use mutate, filtering and dates, give me three que
 
 **Answer**
 
-1.  
+1.  We could ask who has received the most frequent expenses from Maryland?
 
-2.  
+2.  We could ask what expense category Maryland funds most often?
 
-3.  
+3.  We could look at the purpose tab to see the most common purpose of Maryland expenses?
