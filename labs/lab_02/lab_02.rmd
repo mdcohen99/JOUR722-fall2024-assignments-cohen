@@ -1,0 +1,124 @@
+---
+title: "lab_02"
+author: "Derek Willis"
+adapted by: "Daniel Trielli"
+date: "2024-05-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries and establish settings
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse. If you have not installed the tidyverse already, remove the # from the next line and run it first.  
+# install.packages('tidyverse')
+library(tidyverse)
+library(lubridate)
+```
+
+## Load Data
+
+Let's keep working with the UMD courses and Maryland campaign expense data we used in the pre_lab.
+
+```{r}
+umd_courses <- read_rds("data/umd_courses.rds")
+maryland_expenses <- read_csv("data/maryland_expenses.csv")
+```
+
+## Answer questions
+
+### **Q1** How many departments have offered the courses with "Climate" in the title and at least one seat? Which department has offered the most?
+
+```{r}
+umd_courses |>
+    filter(str_detect(title, "Climate")) |> filter(seats>=1) |>
+    group_by(department)
+
+
+
+```
+
+**A1: 26 departments have offered a class with climate in the title. No department has offered more than Atmospheric and Oceanic Science**
+
+------------------------------------------------------------------------
+
+### **Q2** Which departments have the most courses in the Fall 2023 term? And which departments in that term have at least one syllabus posted? How are the top departments different in each result? Where is Journalism in those results?
+
+```{r}
+fall_courses <- umd_courses |> filter(term == 202308) |> filter(syllabus_count >= 1)
+  
+fall_courses |> count(department) |> filter(department == "Journalism")
+
+```
+
+**A2 Business and management offered the most with 82 courses with a posted syllabus. Journalism offered 12 courses with a posted syllabus. Business and management still led the way without the filter for a posted syllabus, but with 164 courses now instead of 82. Several other departments had much larger course numbers and the table had several more**
+
+------------------------------------------------------------------------
+
+### **Q3** Using the Maryland campaign expenses data, change the datatype of the expenditure_date column so that it is a date and not a chr. Then create a new column for the month based on expenditure_date. Then write code that shows total amount spent each month by Wes Moore's committee (you'll need to search the data to find the exact name). Write a sentence describing the pattern of spending over time.
+
+```{r}
+maryland_expenses |> 
+  mutate(expenditure_date=mdy(expenditure_date)) |> 
+  filter(payee_name == "Moore  Wes For Maryland") |> 
+  mutate(month = floor_date(expenditure_date, "month")) |> 
+  group_by(month) |> 
+  summarise(total_amount = sum(amount)) |> 
+  arrange(desc(total_amount))
+  
+```
+
+**A3 The spending of Moore's campaign committee had three of its four largest spending months in the three months leading up to Election Day in 2022 — the final push to convince voters in the last weeks before they go to the polls. September was the largest spending month, with October and August also among the top four, just before November.**
+
+------------------------------------------------------------------------
+
+### **Q4** Using case_when(), create a column in the Maryland expenses data called `spending_location` indicating whether each record indicated money spent in Maryland or outside Maryland. For records that are in Maryland, make the new column's value "In-state" and for the others, make it "Out of state". Then write code that shows the total amount of money spent in each category and describe the results. You can do this in one statement or break it up into two statements (saving the new column to your dataframe).
+
+```{r}
+maryland_expenses_by_state <- maryland_expenses |> 
+  mutate(
+    spending_location = case_when(
+      str_detect(address, "Maryland") ~ "In_state",
+      str_detect(address, " California ") ~ "Out_of_state",
+        str_detect(address, " Washington ") ~ "Out_of_state",
+        str_detect(address, " Louisiana ") ~ "Out_of_state",
+        str_detect(address, " Florida ") ~ "Out_of_state",
+        str_detect(address, " North Carolina ") ~ "Out_of_state",
+        str_detect(address, " Massachusetts ") ~ "Out_of_state",
+        str_detect(address, " West Virginia ") ~ "Out_of_state",
+        str_detect(address, " Virginia ") ~ "Out_of_state",
+        .default = NA
+    )
+  )
+
+maryland_expenses_by_state |> 
+  group_by(spending_location) |>
+  summarize(total = sum(amount)) |>
+  arrange(desc(total))
+
+```
+
+**A4** \$77,735,787 of the expenses are listed at in state addresses, \$**33,164,994 are out of state**
+
+------------------------------------------------------------------------
+
+### **Q5** Choose your own adventure: using either the UMD courses or campaign expenses data, ask and answer a question that is different than the previous ones. You can use one of the ones you provided in the pre_lab.
+
+```{r}
+maryland_expenses |>
+  group_by(expense_purpose)|>
+  summarise(
+    count_expenses=n()
+  ) |>
+  arrange(desc(count_expenses))
+
+    
+```
+
+**A5 I wanted to find out what the most common purpose of an expense was according to the data set. The code I wrote was meant to determine that. From this, we have learned no expense occurred more frequently than credit card service processing charges, which occurred 16,731 times**

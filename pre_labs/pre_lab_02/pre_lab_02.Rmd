@@ -168,7 +168,7 @@ maryland_expenses <- maryland_expenses |> mutate(expenditure_date=mdy(expenditur
 head(maryland_expenses)
 ```
 
-**Answer: It changed the order that the date shows in, from Month-Date-Year to Year-Month-Datege**
+**Answer: It changed the order that the date shows in, from Month-Date-Year to Year-Month-Date**
 
 Lubridate has functions for basically any type of character date format: mdy, ymd, even datetimes like ymd_hms.
 
