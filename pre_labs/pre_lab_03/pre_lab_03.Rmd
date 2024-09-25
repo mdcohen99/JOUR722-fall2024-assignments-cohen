@@ -280,5 +280,9 @@ cleaned_md_grants_loans
 **Task** Write and run code to answer our original question: which zip code has gotten the most amount of money from the Maryland Tourism Board? Does that zip code make sense to you?
 
 ```{r}
+cleaned_md_grants_loans |>
+  group_by(zip_code)|>
+  summarize(total = sum(amount))|>
+  arrange(desc(total))
 
 ```
