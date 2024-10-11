@@ -36,6 +36,8 @@ groq_response
 
 Did that work?
 
+Yes!
+
 ## Q1. Turning unstructured information into data: let's take [this article](https://www.nytimes.com/2024/09/27/arts/maggie-smith-dead.html) about the death of Dame Maggie Smith and try to extract information from it. Your goal is to have Groq create a table with the films and TV shows mentioned in this news article, and extract the following information about them: title, year, role, director, co-stars, and awards. From the table that it created, answer this: is the information correct? Did all information come from the article text?
 
 ```{r}
@@ -68,11 +70,15 @@ McGonagall, wearing high-necked Victorian-style gowns, a distinctive Scottish br
 ```
 
 ```{r}
-#Add code below to talk to Groq and display its response
+maggie_smith <- axolotr::ask(
+  prompt = paste("Extract the films and TV shows mentioned in the following text into a CSV file. Using a table structure, include the following headers: title,year,role,director,co-stars,awards. Each film or show should be its own row and the headers should be column names. Use N/A for any data you don't know. Just give me the CSV, without a title and no yapping.", text),
+  model = "llama-3.1-8b-instant"
+)
 
+maggie_smith_csv <- read_csv(maggie_smith)
 ```
 
-**Answer:**
+**Answer: The information included is correct, but it appears to not have all the information. For example, Groq only knows to list two Harry Potter movies despite Smith being in more than two movies. There are also examples of shows in the article that didn't make it into the table.**
 
 ------------------------------------------------------------------------
 
@@ -88,11 +94,16 @@ r_code_example = 'umd_courses |>
 ```
 
 ```{r}
-#Add code below to talk to Groq and display its response
+umd_response <- axolotr::ask(
+  prompt = paste("I have a CSV file of all the courses offered at the University of Maryland. I have been given code using the text name r_code_example. Please explain what the code does. Do not dare yap at me. Get to the point.", r_code_example),
+  model = "llama-3.1-8b-instant"
+)
+
+print(umd_response)
 
 ```
 
-**Answer:**
+**Answer: The answer is correct. This code will show which department offers the most classes with climate in the title and also having available seats. Groq worded it in a bit of a confusing manner, but it is saying the correct thing.**
 
 ------------------------------------------------------------------------
 
@@ -105,7 +116,17 @@ lab_question = 'Using case_when(), create a column in the Maryland expenses data
 
 #Paste the code block here, between the quotes. If your code has quotes or single quotes, you have to add a \ before each one so R doesn't break.
 
-your_r_code_lab = "
+your_r_code_lab = "maryland_expenses |>
+  mutate(spending_location = case_when(
+    str_detect(address, ' Maryland') ~ 'In-state',
+    str_detect(address, ' Virginia') ~ 'Out of state',
+    str_detect(address, ' New Jersey') ~ 'Out of state',
+    str_detect(address, ' New York') ~ 'Out of state',
+    str_detect(address, ' Pennsylvania') ~ 'Out of state',
+    .default = 'Out of state or no address'
+  )) |>
+  group_by(spending_location) |>
+  summarise(total_amount = sum(amount))
 
 
 "
@@ -114,11 +135,16 @@ your_r_code_lab = "
 ```
 
 ```{r}
-#Add code below to talk to Groq and display its response
+lab_question_three <- axolotr::ask(
+  prompt = paste("Is the code I used in the following text correct", your_r_code_lab),
+  model = "llama-3.1-8b-instant"
+)
+
+print(lab_question_three)
 
 ```
 
-**Answer:**
+**Answer: This was largely helpful because the code we know is correct based on that it is from the answer key. But on top of that, Groq gives some scenarios that could be another way to answer the same question. Of course, we'd have to actually try that to make sure it works, but is always good to have options.**
 
 ------------------------------------------------------------------------
 
@@ -126,18 +152,29 @@ your_r_code_lab = "
 
 ```{r}
 #Add code below to talk to Groq and display its response
+crash_data <- axolotr::ask(
+  prompt = 'Tell me some news stories I can write about a data set of car crashes in Montgomery County, Maryland. The data includes information on where the crash occured, which police agency responded to the crash, what data the crash occured, and how many cars were involved in the crash.',
+  model = "llama-3.1-8b-instant"
+)
+
+print(crash_data)
 
 ```
 
-**Answer:**
+**Answer: This response provides pretty basic but decent ideas for data analysis. This answer will not give us specific trends in data because Groq has not seen the data itself. It only knows the general information I input. Most of the ideas here are standards including when crashes most often occur, the severity of the crash, where crashes occurred and one-year comparisons. All of those are important stories, but also are stories that the reporter should think of on their own.**
 
 ------------------------------------------------------------------------
 
 ## Q5. Using AI to write news articles: ask Groq to write a 500-word news article about a car crash at the intersection between Knox Road and Regents Drive. What issues or problems do you see with the output?
 
 ```{r}
-#Add code below to talk to Groq and display its response
+car_article <- axolotr::ask(
+  prompt = "Write me a 500 word news article about a fatal car crash at the intersection between Knox Road and Regents Drive in College Park, Maryland. Please write this story in proper Associated Press news style and a straight news lead. The story should include a quote from the College Park Police Department and the President of the University of Maryland. There should be a quote from Mickey Mouse and former United States President Jimmy Carter.",
+  model = "llama-3.1-8b-instant"
+)
+
+car_article
 
 ```
 
-**Answer:**
+**Answer: I told Groq to write me a quote from the UMD president. The name it gave for the quotes is not correct the first time I hit run. Then, I kept messing with the prompt and it eventually spit out the correct name. So the issue we need to keep an eye on as journalists is the accuracy of names and facts used.**
