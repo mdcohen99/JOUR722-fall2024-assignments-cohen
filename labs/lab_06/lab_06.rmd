@@ -52,7 +52,7 @@ bal_calls <- bal911 |> left_join(zcta, join_by(zip_code == zcta5n))
 
 ### Q1. Let's start with our data from Allegany, Cecil and Carroll counties. Write code to generate a dataframe that shows the total number of calls for each county. What's the order of counties from most calls to least?
 
-A1.
+A1. Carroll had the most, then Cecil, then Allegany
 
 ```{r}
 
@@ -66,15 +66,41 @@ combined_md_calls |>
 
 Then calculate the most calls per county and location. Which location had the most calls - where and what is that location?
 
-A2.
+A2. The most calls came from 314 Grove Neck Rd in Cecil County. Turns out, that is a recovery center! I didn't notice any obvious outliers in the data when i sorted it by county and by month. In all three counties, the number of calls per month seems to follow a bit of a bell curve, starting on the low end, then peaking in the summer before declining back again in the winter.
 
 ```{r}
 
 combined_md_calls |> 
-  mutate(date=mdy(date)) |>
-  mutate(month = month(date))
+  mutate(date = mdy(date)) |>
+  mutate(month = floor_date(date, "month"))
 
-combined_md_calls
+allegany_by_month <- combined_md_calls |>
+  filter(county == "Allegany") |>
+  mutate(month = month(date)) |>
+  group_by(month) |>
+  summarize(total = n()) 
+
+carroll_by_month <- combined_md_calls |>
+  filter(county == "Carroll") |>
+  mutate(month = month(date)) |>
+  group_by(month) |>
+  summarize(total = n()) 
+
+cecil_by_month <- combined_md_calls |>
+  filter(county == "Cecil") |>
+  mutate(month = month(date)) |>
+  group_by(month) |>
+  summarize(total = n()) 
+
+month_data <- bind_rows(list(allegany_by_month, carroll_by_month, cecil_by_month))
+                        
+combined_md_calls |> 
+  group_by(location) |>
+  summarize(total = n()) |>
+  arrange(desc(total))
+  
+                        
+                  
 ```
 
 ### Q3. Let's turn to the Baltimore City data. You're interested in exploring calls in zip codes with a high percentage of children under 18. Write code to isolate calls in zip codes where the percentage of under 18 population is at least 75% and then show the zip code and population and how many calls occurred in each of those zip codes.
@@ -85,14 +111,45 @@ Add a column to your code that calculates the number of calls per 1,000 people f
 
 Which zip code has the highest rate of calls per 1,000 people? Find the neighborhoods in that zip code that are listed in the data - you can use group_by or distinct to do this. What are some of those neighborhoods?
 
-A3.
+**A3. 21217 had the highest number of calls per capita out of all the zip codes. There are seven total zip codes that meet the criteria we filtered for in terms of age.**
+
+**Every single one of the seven zip codes is, relatively, downtown Baltimore. 21217, 21216, 21223, 21201 and 21202 are either the heart of downtown, or some of the neighborhoods east of the harbor that are more stereotypicly associated with crime in the city.**
 
 ```{r}
+
+under_18 <- bal_calls |>
+  filter(pct_under_18 > 75.0)
+
+under_18 |>
+  group_by(zip_code) |>
+  summarize(people = (sum(population)/n())) 
+
+per_capita <- 
+  under_18 |>
+  group_by(zip_code) |>
+  summarize(per_capita = (((n())/(sum(population)/n()))*1000))
+
+per_capita |>
+  arrange(desc(per_capita))
+
+
+
+
 ```
 
 ### Q4. Choose your own adventure: I want you to come up with a question you could ask of the Baltimore City data that combines both the calls and the demographic information. You must use both demographics and the overdose call data in your work.
 
-A4:
+**A4: Going further from the previous question, now I want to find the locations in zip codes with high Black populations — given Baltimore is a majority Black city — had the most overdose calls. Recent census data showed Baltimore city is about 60% Black, so I'm going to use that as the benchmark for any zip code with a Black population of 60% or higher, since that is as or more representative as the city itself.**
+
+**I found that Pennsylvannia Av and W North Av had 35 calls, the most of any one location in a zip code with an above average Black population.**
 
 ```{r}
+
+census <- bal_calls |>
+  filter(pct_black_non_hispanic > 60.0)
+
+census |> 
+  group_by(location) |> 
+  summarize(calls = n()) |> 
+  arrange(desc(calls))
 ```
