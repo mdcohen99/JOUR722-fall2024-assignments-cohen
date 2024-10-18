@@ -50,13 +50,46 @@ In this notebook, we are reverse engineering five sentences from the story.
 ### Sentence 1
 
 -   **Sentence text**: Overall, public school enrollment fell by over 700,000 students between the 2019-2020 and 2021-2022 school years in the 21 states plus Washington, D.C., that provided the necessary data.
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Analysis summary**: After several attempts to figure out how to sort through some confusingly structured data, we figured out how the AP reached the claim in 700,000 students gone from public school enrollment from 2019-2020 to 2021-22. After mutating and filtering the data, we produced a summary that showed total enrollment in the 21 states plus DC that the AP used for its analysis, based on the above sentence. We then subtracted the 2021-22 total enrollment from the 2019-20 and got 704,593. That lines up with the sentence in the AP style saying enrollment declined by "over 700,000"
 
 ```{r}
 # Put code to reverse engineer sentence here
-public_enrollment_by_grade |> 
+
+filtered_states <- public_enrollment_by_grade |> 
+  filter(grade == "k_12_total") |>
+  mutate(
+    counted_state = case_when(
+        str_detect(st, "CA") ~ "TRUE",
+        str_detect(st, "NY") ~ "TRUE",
+        str_detect(st, "LA") ~ "TRUE",
+        str_detect(st, "NC") ~ "TRUE",
+        str_detect(st, "WA") ~ "TRUE",
+        str_detect(st, "CO") ~ "TRUE",
+        str_detect(st, "GA") ~ "TRUE",
+        str_detect(st, "MN") ~ "TRUE",
+        str_detect(st, "WI") ~ "TRUE",
+        str_detect(st, "NH") ~ "TRUE",
+        str_detect(st, "MA") ~ "TRUE",
+        str_detect(st, "MT") ~ "TRUE",
+        str_detect(st, "DE") ~ "TRUE",
+        str_detect(st, "ND") ~ "TRUE",
+        str_detect(st, "DC") ~ "TRUE",
+        str_detect(st, "SD") ~ "TRUE",
+        str_detect(st, "SC") ~ "TRUE",
+        str_detect(st, "NE") ~ "TRUE",
+        str_detect(st, "RI") ~ "TRUE",
+        str_detect(st, "TN") ~ "TRUE",
+        str_detect(st, "PA") ~ "TRUE",
+        str_detect(st, "FL") ~ "TRUE",
+        .default = "FALSE",
+    )
+  )
+
+
+filtered_states |> 
+  filter(counted_state == "TRUE") |>
   group_by(sch_year) |>
-  summarize(total = sum(enrollment)) |>
+  summarize(total = sum(enrollment, na.rm = TRUE)) |>
   arrange(desc(total))
 
 
@@ -67,11 +100,47 @@ public_enrollment_by_grade |>
 
 ### Sentence 2
 
--   **Sentence text**: [Paste in sentence to engineer here]
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Sentence text**: Those states saw private-school enrollment grow by over 100,000 students.
+-   **Analysis summary**: This is a follow up on the previous sentence, but this one discusses private schools. The code to solve this one is pretty much identical, but did take checking some slightly altered column names compared to the public school data. When subtracting the 2021-22 enrollment from the 2019-20, we get -102,847. That in fact means that there was an increase of just over 100,000 in the total private school enrollment. That exactly lines up with the AP story.
 
 ```{r}
 # Put code to reverse engineer sentence here
+filter_privates <- private_enrollment_by_grade |> 
+  filter(grade == "k_12_total") |>
+  mutate(
+    counted_state = case_when(
+        str_detect(state, "CA") ~ "TRUE",
+        str_detect(state, "NY") ~ "TRUE",
+        str_detect(state, "LA") ~ "TRUE",
+        str_detect(state, "NC") ~ "TRUE",
+        str_detect(state, "WA") ~ "TRUE",
+        str_detect(state, "CO") ~ "TRUE",
+        str_detect(state, "GA") ~ "TRUE",
+        str_detect(state, "MN") ~ "TRUE",
+        str_detect(state, "WI") ~ "TRUE",
+        str_detect(state, "NH") ~ "TRUE",
+        str_detect(state, "MA") ~ "TRUE",
+        str_detect(state, "MT") ~ "TRUE",
+        str_detect(state, "DE") ~ "TRUE",
+        str_detect(state, "ND") ~ "TRUE",
+        str_detect(state, "DC") ~ "TRUE",
+        str_detect(state, "SD") ~ "TRUE",
+        str_detect(state, "SC") ~ "TRUE",
+        str_detect(state, "NE") ~ "TRUE",
+        str_detect(state, "RI") ~ "TRUE",
+        str_detect(state, "TN") ~ "TRUE",
+        str_detect(state, "PA") ~ "TRUE",
+        str_detect(state, "FL") ~ "TRUE",
+        .default = "FALSE",
+    )
+  )
+
+
+filter_privates |> 
+  filter(counted_state == "TRUE") |>
+  group_by(sch_year) |>
+  summarize(total = sum(enrollment, na.rm = TRUE)) |>
+  arrange(desc(total))
 
 # Display results of code below this codeblock
 
