@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-In this notebook, we are reverse engineering the story, AP's story on missing kids at schools
+In this notebook, we are reverse engineering the story: [AP's story on missing kids at schools](https://projects.apnews.com/features/2023/missing-children/index.html)
 
 ## Load libraries
 
@@ -39,6 +39,7 @@ In this section, describe the source of the data, write a basic data dictionary 
 population_by_age <- read_csv('sb152xr1685/population-by-age.csv') |> clean_names()
 private_enrollment_by_grade <- read_csv('sb152xr1685/private-enrollment-by-grade.csv') |> clean_names()
 public_enrollment_by_grade <- read_csv('sb152xr1685/public-enrollment-by-grade.csv') |> clean_names()
+summary_file <- read_csv('sb152xr1685/enrollment-changes.csv') |> clean_names()
 
 
 ```
@@ -148,11 +149,43 @@ filter_privates |>
 
 ### Sentence 3
 
--   **Sentence text**: [Paste in sentence to engineer here]
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Sentence text**: The number of children registered for home-schooling surged by around 184,000.
+-   **Analysis summary**: The missing student data came from a compilation of enrollment changes at public school, private school and home school. We previously calculated public and private schools, now we complete it with home schools students. We took the same approach that was used for previous questions, but this data set was incorporated into the summary file for the data instead of in its own table. So this took an extra step of filtering. Once that was completed, we were able to calculate the exact difference in enrollment by summarizing the sums of the 2021-22 school year enrollment and 2019-20 and then finding the difference. That math resulted in the same number the AP story had: around 184,000.
 
 ```{r}
 # Put code to reverse engineer sentence here
+homeschool <- summary_file |> filter(enrollment_type == "Homeschool enrollment") |> mutate(
+    counted_state = case_when(
+        str_detect(state_abbrev, "CA") ~ "TRUE",
+        str_detect(state_abbrev, "NY") ~ "TRUE",
+        str_detect(state_abbrev, "LA") ~ "TRUE",
+        str_detect(state_abbrev, "NC") ~ "TRUE",
+        str_detect(state_abbrev, "WA") ~ "TRUE",
+        str_detect(state_abbrev, "CO") ~ "TRUE",
+        str_detect(state_abbrev, "GA") ~ "TRUE",
+        str_detect(state_abbrev, "MN") ~ "TRUE",
+        str_detect(state_abbrev, "WI") ~ "TRUE",
+        str_detect(state_abbrev, "NH") ~ "TRUE",
+        str_detect(state_abbrev, "MA") ~ "TRUE",
+        str_detect(state_abbrev, "MT") ~ "TRUE",
+        str_detect(state_abbrev, "DE") ~ "TRUE",
+        str_detect(state_abbrev, "ND") ~ "TRUE",
+        str_detect(state_abbrev, "DC") ~ "TRUE",
+        str_detect(state_abbrev, "SD") ~ "TRUE",
+        str_detect(state_abbrev, "SC") ~ "TRUE",
+        str_detect(state_abbrev, "NE") ~ "TRUE",
+        str_detect(state_abbrev, "RI") ~ "TRUE",
+        str_detect(state_abbrev, "TN") ~ "TRUE",
+        str_detect(state_abbrev, "PA") ~ "TRUE",
+        str_detect(state_abbrev, "FL") ~ "TRUE",
+        .default = "FALSE",
+    )
+  )
+
+homeschool |>
+  filter(counted_state == "TRUE") |>
+  summarize(total = (sum(school_year_2021_22, na.rm=TRUE))-(sum(school_year_2019_20, na.rm=TRUE)))
+
 
 # Display results of code below this codeblock
 
