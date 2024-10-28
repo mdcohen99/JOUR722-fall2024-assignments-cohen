@@ -24,6 +24,10 @@ You'll need to load two packages for this: the tidyverse and tidycensus.
 options(scipen=999)
 
 # Load the tidyverse.
+library(tidyverse)
+library(tidycensus)
+library(janitor)
+library(lubridate)
 ```
 
 ## Setup Census API
@@ -51,19 +55,29 @@ v21 <- load_variables(2021, "acs5", cache=TRUE)
 
 ```{r}
 
+median_age <- v21 |> filter(str_detect(concept, "MEDIAN AGE"))
+
+md_jurisdiction <- get_acs(geography = "county",
+                           variables = c(median_age = "B01002_001"), 
+                           state = "MD", 
+                           year = 2021)
+
+md_lowest_age <- md_jurisdiction |> arrange(estimate)
+
+md_lowest_age
 ```
 
-**Answer here:**
+**Answer here: Baltimore City has the lowest median age at 35.7 years old.**
 
 ------------------------------------------------------------------------
 
 #### **Q2** Which Maryland counties have a median age of at least 50? You can use the dataframe you just made to answer this, but you must write code to display only those counties with a median age of at least 50. **A2**
 
 ```{r}
-
+md_lowest_age |> filter(estimate>=50)
 ```
 
-**Answer here:**
+**Answer here: Worcester and Talbot counties have median ages above 50.**
 
 ------------------------------------------------------------------------
 
@@ -79,22 +93,46 @@ v21 <- load_variables(2021, "acs5", cache=TRUE)
 Which zip code has the highest rate of calls? Which has the lowest?
 
 ```{r}
+moco_data <- read_csv('data/montgomery_2022_overdoses.csv') |> clean_names() |> mutate(zip = as.character(zip))
+
+moco_calls <- moco_data |> 
+  group_by(zip) |> 
+  summarize(calls = n()) |> 
+  arrange(desc(calls))
+
+moco_by_zip <- get_acs(geography = "zcta",
+                           variables = c(age = "B09021_001"), 
+                           state = "MD", 
+                           year = 2019) |> mutate(GEOID = as.character(GEOID))
+
+joined_moco <- moco_calls |> left_join(moco_by_zip, join_by(zip == GEOID))
+
+joined_moco |> clean_names()
+
+joined_moco |> mutate(per_capita = ((calls/estimate)*1000)) |> arrange(desc(per_capita))
+
+
+
+
 ```
 
-**Answer here:**
+**Answer here: 20877 had the most calls per capita, which is a Gaithersburg zip code. 20903 is the lowest per capita at 0.3 calls per 1000 people.**
 
 ------------------------------------------------------------------------
 
 #### **Q4** Using [CensusReporter.org](https://censusreporter.org/), examine the zip codes on Q3 with the highest and lowest rates and compare and contrast their demographic profiles. Is there a story here?
 
-**Answer here:**
+**Answer here: I grew up and still live in zip code 20814. There are several zip codes near the bottom of the per capita list that are very close to my own home area. 20816 and 20817 being key examples. 20903, the lowest per capita, is also nearby in Silver Spring. Largely, the zip codes with the fewest calls per capita are in southern Montgomery County which is much more white and affluent than other parts of Montgomery County. Some of the zip codes higher on the list are up I-270 in more diverse, lower income portions of the county. So why is there such a clear divide?**
 
 ------------------------------------------------------------------------
 
 #### **Q5** Go back to your joined dataframe from Q3 and add two more columns representing the minimum and maximum populations based on the estimate and margin of error, then calculate per capita rates for each. Do you get the same two zip codes for the highest and lowest as you did before? Does that give you more or less confidence in your answers to Q3?
 
 ```{r}
+moe_moco <- joined_moco |> mutate(max = (estimate+moe)) |> mutate(min = (estimate-moe)) |> mutate(max_per_capita = ((calls/max)*1000)) |> mutate(min_per_capita = ((calls/min)*1000))
 
+moe_moco |> arrange(desc(min_per_capita))
+moe_moco |> arrange(desc(max_per_capita))
 ```
 
-**Answer here:**
+**Answer here: The answers are not exactly the same in both the minimum and maximum end of the margin for error when calculated for calls per capita compared to the estimated number —but it's pretty close. Some of the ordering is slightly different between the three total calculations, but highest and lowest per capita zip code is the same in all three. That gives me confidence in my answers being that they are generally accurate.**
