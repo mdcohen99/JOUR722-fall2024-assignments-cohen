@@ -87,13 +87,19 @@ filtered_states <- public_enrollment_by_grade |>
   )
 
 
-filtered_states |> 
+pre_covid_publics <- filtered_states |> 
+  filter(sch_year == "2019-2020") |>
   filter(counted_state == "TRUE") |>
-  group_by(sch_year) |>
-  summarize(total = sum(enrollment, na.rm = TRUE)) |>
-  arrange(desc(total))
+  summarize(total = sum(enrollment, na.rm = TRUE))
 
+post_covid_publics <- filtered_states |> 
+  filter(sch_year == "2021-2022") |>
+  filter(counted_state == "TRUE") |>
+  summarize(total = sum(enrollment, na.rm = TRUE))
 
+public_change <- pre_covid_publics - post_covid_publics 
+
+public_change
 
 # Display results of code below this codeblock
 
@@ -137,11 +143,21 @@ filter_privates <- private_enrollment_by_grade |>
   )
 
 
-filter_privates |> 
+pre_covid_privates <- filter_privates |> 
+  filter(sch_year == "2019-2020") |>
   filter(counted_state == "TRUE") |>
-  group_by(sch_year) |>
-  summarize(total = sum(enrollment, na.rm = TRUE)) |>
-  arrange(desc(total))
+  summarize(total = sum(enrollment, na.rm = TRUE))
+
+post_covid_privates <- filter_privates |> 
+  filter(sch_year == "2021-2022") |>
+  filter(counted_state == "TRUE") |>
+  summarize(total = sum(enrollment, na.rm = TRUE))
+
+private_change <- pre_covid_privates - post_covid_privates
+
+private_change
+
+
 
 # Display results of code below this codeblock
 
@@ -182,10 +198,11 @@ homeschool <- summary_file |> filter(enrollment_type == "Homeschool enrollment")
     )
   )
 
-homeschool |>
+home_change <- homeschool |>
   filter(counted_state == "TRUE") |>
   summarize(total = (sum(school_year_2021_22, na.rm=TRUE))-(sum(school_year_2019_20, na.rm=TRUE)))
 
+home_change
 
 # Display results of code below this codeblock
 
@@ -193,11 +210,99 @@ homeschool |>
 
 ### Sentence 4
 
--   **Sentence text**: [Paste in sentence to engineer here]
+-   **Sentence text**: But the data showed 230,000 students who were neither in private school nor registered for home-school. Their absences could not be explained by population loss, either – such as falling birth rates or families who moved out of state.
 -   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
 
 ```{r}
 # Put code to reverse engineer sentence here
+school_population <- read_csv('sb152xr1685/school_population.csv') |> clean_names()
+
+counted_population <- school_population |> mutate(
+    counted_state = case_when(
+        str_detect(state, "California") ~ "TRUE",
+        str_detect(state, "New York") ~ "TRUE",
+        str_detect(state, "Louisiana") ~ "TRUE",
+        str_detect(state, "North Carolina") ~ "TRUE",
+        str_detect(state, "Washington") ~ "TRUE",
+        str_detect(state, "Colorado") ~ "TRUE",
+        str_detect(state, "Georgia") ~ "TRUE",
+        str_detect(state, "Minnesota") ~ "TRUE",
+        str_detect(state, "Wisconsin") ~ "TRUE",
+        str_detect(state, "New Hampshire") ~ "TRUE",
+        str_detect(state, "Massachusetts") ~ "TRUE",
+        str_detect(state, "Montana") ~ "TRUE",
+        str_detect(state, "Delaware") ~ "TRUE",
+        str_detect(state, "North Dakota") ~ "TRUE",
+        str_detect(state, "District of Columbia") ~ "TRUE",
+        str_detect(state, "South Dakota") ~ "TRUE",
+        str_detect(state, "South Carolina") ~ "TRUE",
+        str_detect(state, "Nebraska") ~ "TRUE",
+        str_detect(state, "Rhode Island") ~ "TRUE",
+        str_detect(state, "Tennessee") ~ "TRUE",
+        str_detect(state, "Pennsylvania") ~ "TRUE",
+        str_detect(state, "Florida") ~ "TRUE",
+        .default = "FALSE",
+    )
+  ) 
+
+
+edit_private <- filter_privates |> mutate(
+  state = case_when(
+        str_detect(state, "CA") ~ "CALIFORNIA",
+        str_detect(state, "NY") ~ "NEW YORK",
+        str_detect(state, "LA") ~ "LOUISIANA",
+        str_detect(state, "NC") ~ "NORTH CAROLINA",
+        str_detect(state, "WA") ~ "WASHINGTON",
+        str_detect(state, "CO") ~ "COLORADO",
+        str_detect(state, "GA") ~ "GEORGIA",
+        str_detect(state, "MN") ~ "MINNESOTA",
+        str_detect(state, "WI") ~ "WISCONSIN",
+        str_detect(state, "NH") ~ "NEW HAMPSHIRE",
+        str_detect(state, "MA") ~ "MASSACHUSETTS",
+        str_detect(state, "MT") ~ "MONTANA",
+        str_detect(state, "DE") ~ "DELAWARE",
+        str_detect(state, "ND") ~ "NORTH DAKOTA",
+        str_detect(state, "DC") ~ "DISTRICT OF COLUMBIA",
+        str_detect(state, "SD") ~ "SOUTH DAKOTA",
+        str_detect(state, "SC") ~ "SOUTH CAROLINA",
+        str_detect(state, "NE") ~ "NEBRASKA",
+        str_detect(state, "RI") ~ "RHODE ISLAND",
+        str_detect(state, "TN") ~ "TENNESSEE",
+        str_detect(state, "PA") ~ "PENNSYLVANIA",
+        str_detect(state, "FL") ~ "FLORIDA",
+        .default = "FALSE",
+    )
+  ) 
+
+Y19_privates <- edit_private |> filter(counted_state == "TRUE", sch_year == "2019-2020")
+
+Y21_privates <- edit_private |> filter(counted_state == "TRUE", sch_year == "2021-2022")
+
+join_privates <- Y19_privates |> left_join(Y21_privates, join_by(state)) 
+
+joined_privates <- join_privates |> mutate(private_change = enrollment.y - enrollment.x)
+
+Y19_publics <- filtered_states |> filter(counted_state == "TRUE", sch_year == "2019-2020")
+
+Y21_publics <- filtered_states |> filter(counted_state == "TRUE", sch_year == "2021-2022")
+
+join_publics <- Y19_publics |> left_join(Y21_publics, join_by(state))
+
+joined_publics <- join_publics |> mutate(public_change = enrollment.y - enrollment.x)
+
+caps_homeschool <- homeschool |> mutate(state = str_to_upper(state))
+
+counted_population_caps <- counted_population |> mutate(state = str_to_upper(state))
+
+all_joined_data <- joined_privates |> 
+  left_join(joined_publics, join_by(state)) |> 
+  left_join(caps_homeschool, join_by(state)) |>
+  left_join(counted_population_caps, join_by(state))
+
+missing <- all_joined_data |> mutate(residual = (private_change + public_change + total_change - change_in_school_aged_population_5_17))
+
+missing |> summarize(sum(residual))
+
 
 # Display results of code below this codeblock
 
