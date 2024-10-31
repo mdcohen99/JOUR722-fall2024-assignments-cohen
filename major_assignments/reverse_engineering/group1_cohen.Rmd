@@ -211,7 +211,7 @@ home_change
 ### Sentence 4
 
 -   **Sentence text**: But the data showed 230,000 students who were neither in private school nor registered for home-school. Their absences could not be explained by population loss, either – such as falling birth rates or families who moved out of state.
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Analysis summary**: We were able to get the same result as the AP through a several step process that included manipulating rows in order to make the data join-able and parsing out the 2019-20 data from the 2021-22 data in order to make it possible to add and subtract across the two school years. We then joined all the data and created a similar data set to what the AP used in the summary file to create a residual file (adding the public school change, private school change and home school change before subtracting that from the total population change in school age children). That total got us the same amount as the AP wrote, 234,213 missing students.
 
 ```{r}
 # Put code to reverse engineer sentence here
@@ -312,8 +312,8 @@ missing |> summarize(sum(residual))
 
 ### Sentence 5
 
--   **Sentence text**:
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Sentence text**: The following sentence is NOT in the story: If we filtered out the counted states, what would be the total number of students missing across all available data in this notebook?
+-   **Analysis summary**: The answer is about 290,000 missing students, or about 60,000 more than when we only used the counted states. A key for this data is to note this still is not all 50 states plus DC. Only the public school data and population data includes information for all 50 states plus DC. The private school data and home school data does not. So the final answer we have is not without holes. But it is the sum of the residuals for all of the states in the data set, albeit not 50 plus DC. The main tactic to reach this number, similar to sentence four, was to separate out the 2019-20 data and 2021-22 data in the public and private schoold data so we could subtract and the get the difference. From there, we joined all the data together and got the residual. The key difference here is that we just removed the filter we had previously been using.
 
 ```{r}
 # Put code to reverse engineer sentence here
