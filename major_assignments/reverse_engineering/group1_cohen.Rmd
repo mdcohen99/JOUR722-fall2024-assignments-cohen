@@ -299,7 +299,9 @@ all_joined_data <- joined_privates |>
   left_join(caps_homeschool, join_by(state)) |>
   left_join(counted_population_caps, join_by(state))
 
-missing <- all_joined_data |> mutate(residual = (private_change + public_change + total_change - change_in_school_aged_population_5_17))
+all_joined_data <- all_joined_data |> select(private_change, public_change, total_change, change_in_school_aged_population_5_17)
+
+missing <- all_joined_data |> mutate(residual = (private_change + public_change + total_change - change_in_school_aged_population_5_17)) |> arrange(residual)
 
 missing |> summarize(sum(residual))
 
@@ -310,11 +312,73 @@ missing |> summarize(sum(residual))
 
 ### Sentence 5
 
--   **Sentence text**: [Paste in sentence to engineer here]
+-   **Sentence text**:
 -   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
 
 ```{r}
 # Put code to reverse engineer sentence here
+public_enrollment_by_grade_19 <- public_enrollment_by_grade |> filter(sch_year == "2019-2020", grade == "k_12_total")
+public_enrollment_by_grade_21 <- public_enrollment_by_grade |> filter(sch_year == "2021-2022", grade == "k_12_total")
+private_enrollment_by_grade_19 <- private_enrollment_by_grade |> filter(sch_year == "2019-2020", grade == "k_12_total")
+private_enrollment_by_grade_21 <- private_enrollment_by_grade |> filter(sch_year == "2021-2022", grade == "k_12_total")
+all_50_homeschool <- summary_file |> filter(enrollment_type == "Homeschool enrollment") 
+
+public_enrollment <- public_enrollment_by_grade_19 |> left_join(public_enrollment_by_grade_21, join_by(state))
+private_enrollment <- private_enrollment_by_grade_19 |> left_join(private_enrollment_by_grade_21, join_by(state))
+
+public_enrollment <- public_enrollment |> mutate(public_change = enrollment.y - enrollment.x)
+private_enrollment <- private_enrollment |> mutate(private_change = enrollment.y - enrollment.x)
+
+private_enrollment <- private_enrollment |> mutate(state = case_when(
+        str_detect(state, "CA") ~ "CALIFORNIA",
+        str_detect(state, "CO") ~ "COLORADO",
+        str_detect(state, "NY") ~ "NEW YORK",
+        str_detect(state, "HI") ~ "HAWAII",
+        str_detect(state, "IN") ~ "INDIANA",
+        str_detect(state, "IA") ~ "IOWA",
+        str_detect(state, "KS") ~ "KANSAS",
+        str_detect(state, "MD") ~ "MARYLAND",
+        str_detect(state, "MI") ~ "MICHIGAN",
+        str_detect(state, "LA") ~ "LOUISIANA",
+        str_detect(state, "NC") ~ "NORTH CAROLINA",
+        str_detect(state, "WA") ~ "WASHINGTON",
+        str_detect(state, "CO") ~ "COLORADO",
+        str_detect(state, "GA") ~ "GEORGIA",
+        str_detect(state, "MN") ~ "MINNESOTA",
+        str_detect(state, "WI") ~ "WISCONSIN",
+        str_detect(state, "NH") ~ "NEW HAMPSHIRE",
+        str_detect(state, "MA") ~ "MASSACHUSETTS",
+        str_detect(state, "MT") ~ "MONTANA",
+        str_detect(state, "DE") ~ "DELAWARE",
+        str_detect(state, "ND") ~ "NORTH DAKOTA",
+        str_detect(state, "DC") ~ "DISTRICT OF COLUMBIA",
+        str_detect(state, "SD") ~ "SOUTH DAKOTA",
+        str_detect(state, "SC") ~ "SOUTH CAROLINA",
+        str_detect(state, "NE") ~ "NEBRASKA",
+        str_detect(state, "RI") ~ "RHODE ISLAND",
+        str_detect(state, "TN") ~ "TENNESSEE",
+        str_detect(state, "PA") ~ "PENNSYLVANIA",
+        str_detect(state, "FL") ~ "FLORIDA",
+        str_detect(state, "OH") ~ "OHIO",
+        str_detect(state, "TX") ~ "TEXAS",
+        str_detect(state, "NJ") ~ "NEW JERSEY",
+        str_detect(state, "WV") ~ "WEST VIRGINIA",
+        str_detect(state, "CT") ~ "CONNECTICUT",
+        str_detect(state, "NV") ~ "NEVADA",
+  )
+)
+
+all_50_joined_data <- public_enrollment |> 
+  left_join(private_enrollment, join_by(state)) |> 
+  left_join(caps_homeschool, join_by(state)) |>
+  left_join(counted_population_caps, join_by(state))
+
+all_50_missing <- all_50_joined_data |> mutate(residual = (private_change + public_change + total_change - change_in_school_aged_population_5_17)) |> arrange(residual)
+
+all_50_missing |> summarize(missing = sum(residual, na.rm=TRUE))
+
+
+
 
 # Display results of code below this codeblock
 
