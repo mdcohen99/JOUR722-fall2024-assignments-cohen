@@ -84,7 +84,7 @@ top10_ballots |>
 -   Make a codeblock below to write your code in.
 -   Calculate the percentage of ballots returned by both Democrats and Republicans.
 -   Arrange the dataframe to show the counties with the smallest percentage of returned ballots from Democrats first.
--   Use ggplot to make a horizontal bar chart that shows just the first 10 counties, with the length of the bar determined by the county's percentage of ballots returned by Democrats. Give it an appropriate title, source, and x and y axis titles.
+-   Use ggplot to make a horizontal bar chart that shows just the first 10 counties with fewest Democratic ballots returned, **with the length of the bar determined by the county's difference of percentages between parties**. Give it an appropriate title, source, and x and y axis titles.
 
 **A2.**
 
@@ -107,17 +107,18 @@ dems_and_reps <-
   full_join(dem_10, rep_10, join_by(county_name))
 
 dems_and_reps <- dems_and_reps |>
-  arrange(desc(dem_returned.x))
+  arrange(desc(dem_returned.x)) |> mutate(dif = (dem_returned.x - rep_returned.x))
 
 dems_and_reps |> 
   ggplot() +
-  geom_bar(aes(x=county_name, weight=dem_returned.x)) +
+  geom_bar(aes(x=reorder(county_name, dif), weight=dif)) +
   coord_flip() +
   theme_minimal() +
   labs(
     title="Percent of absentee ballots returned in Maryland",
     x = "County",
-    y = "Percent of ballots returned",
+    y = "Difference in % returned of Democrat vs Republican ballots",
+    caption = "Maryland State Board of Elections"
 ) 
 
 
@@ -129,6 +130,21 @@ dems_and_reps |>
 **A3**
 
 ```{r}
+date_absentee <- date_absentee |> mutate(dem_returned = dem_sent - dem_received) |> mutate(rep_returned = rep_sent - rep_received) |> mutate(ind_returned = oth_sent - oth_received)
+
+frederick <- date_absentee |> 
+  filter(county_name == "FREDERICK")
+
+frederick |>
+  ggplot() + 
+  geom_line(aes(x=date, y=dem_returned), color = "blue") +
+  geom_line(aes(x=date, y=rep_returned), color = "red") +
+  geom_line(aes(x=date, y=ind_returned), color = "darkgray") +
+  labs(
+    title = "Ballots returned by party in Frederick County",
+    x = "date",
+    y = "Number of ballots returned",
+  )
 
 ```
 
