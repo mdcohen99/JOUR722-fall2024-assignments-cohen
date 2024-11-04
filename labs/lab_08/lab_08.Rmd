@@ -107,7 +107,7 @@ dems_and_reps <-
   full_join(dem_10, rep_10, join_by(county_name))
 
 dems_and_reps <- dems_and_reps |>
-  arrange(desc(dem_returned.x)) |> mutate(dif = (dem_returned.x - rep_returned.x))
+  arrange(desc(dem_returned.x)) |> mutate(dif = (dem_returned.x - rep_returned.y))
 
 dems_and_reps |> 
   ggplot() +
@@ -144,7 +144,8 @@ frederick |>
     title = "Ballots returned by party in Frederick County",
     x = "date",
     y = "Number of ballots returned",
-  )
+  ) +
+  theme_minimal()
 
 ```
 
@@ -169,6 +170,21 @@ Follow these steps:
 **A4.**
 
 ```{r}
+scatter_data <- absentee |> select("county_name", "total_sent", "total_received")
 
-  
+ggplot(scatter_data, aes(x=total_sent, y=total_received)) +
+  geom_point(color="black", size=1) +
+  labs(
+    title = "Total absentee ballots sent vs received in MD",
+    x = "Total absentee ballots sent",
+    y = "Total absentee ballots received",
+    Caption = "Maryland State Board of Elections",
+  ) +
+  geom_text(
+    aes(label=county_name)
+    ) +
+  geom_smooth(method=lm) +
+  theme_minimal()
 ```
+
+NOTE: I did use ChatGPT marginally in answering this question in the process of researching how to use the geom_point scatterplot syntax. I wasn't sure I fully understood how to use the code that was mentioned in the link in the prompt above, so I copied the code example of geom_point from the tidyverse website and asked ChatGPT to explain it to me. ChatGPT, however, spit out a different way to write the code than what tidyverse showed, and this was both much simpler and gave me the correct result — at least it appears to have given the correct result.
