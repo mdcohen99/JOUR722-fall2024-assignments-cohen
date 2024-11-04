@@ -127,7 +127,7 @@ dems_and_reps |>
 
 **Q3** Let's make a line chart using the second set of absentee ballot data - this one tracking returns by date. We want to see received ballots for Frederick County for Democrats, Republicans and Others, so you'll make a chart with three lines, adding color to each one (you can choose, but choose sensibly). Give the chart a title and good labels. What's the story that this line chart tells? Compare and contrast the three lines. Does it match what you know about absentee voting habits?
 
-**A3**
+**A3 It shows that significantly more Democrat ballots were received than any other group. That very much lines up with perceptions of how ballots were cast with democrats known to be far more likely to have voted by mail.**
 
 ```{r}
 date_absentee <- date_absentee |> mutate(dem_returned = dem_sent - dem_received) |> mutate(rep_returned = rep_sent - rep_received) |> mutate(ind_returned = oth_sent - oth_received)
@@ -167,7 +167,7 @@ Follow these steps:
 4.  Add a line of fit to the plot using geom_smooth (<https://ggplot2.tidyverse.org/reference/geom_smooth.html#ref-examples>). Specify the method as lm.
 5.  In the answer space below, describe what you see. In a general sense, how would you report out the main point(s) of this chart? Are there counties that seem to be over or under-performing in relation to the overall trend?
 
-**A4.**
+**A4. I struggled with this a bit, but I found that the majority of counties are bunched together, with a few exceptions. Montgomery County is by far the outlier here, and that makes a lot of sense. Montgomery County both has one of the largest populations of any county in the state and is extremely Democrat heavy.**
 
 ```{r}
 scatter_data <- absentee |> select("county_name", "total_sent", "total_received")
