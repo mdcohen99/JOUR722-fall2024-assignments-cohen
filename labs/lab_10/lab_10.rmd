@@ -113,25 +113,36 @@ ev <- read_csv('data/ev_2020_2023.csv') |>
 
 ```{r}
 #Merge geometries with EV data
-
+joined_ev <- md_statewide_geo |> inner_join(ev, join_by('name' == 'county'))
 ```
 
 ```{r}
 #Map out the change
-
+ggplot() +
+  geom_sf(data=joined_ev, aes(fill=pct_change)) +
+  theme_minimal() 
 ```
 
 ```{r}
 #Grab population data from Census
+dhc_df <- get_acs(geography = "county",
+              variables = c(population = "B01001_001"),
+              year = 2021,
+              state = "MD") |> 
+              clean_names()
 
+all_joined <- joined_ev |> inner_join(dhc_df, join_by('geoid')) 
 ```
 
 ```{r}
 #Calculate per capita rate for March 2023
-
+all_joined <- all_joined |>
+  mutate(per_capita = (pct_change/estimate)*1000)
 ```
 
 ```{r}
 #Map out the per capita rate
-
+ggplot() +
+  geom_sf(data=all_joined, aes(fill=per_capita)) +
+  theme_minimal() 
 ```
