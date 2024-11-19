@@ -1,0 +1,54 @@
+---
+title: "data_analysis_project"
+author: "Matt Cohen"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Analysis Project
+
+```{r}
+
+#load libraries
+library(tidyverse)
+library(janitor) 
+library(tidycensus)
+library(lubridate)
+
+#load data
+jan_2022 <- read_csv('data/Jan-2022.csv')
+feb_2022 <- read_csv('data/Feb-2022.csv')
+march_2022 <- read_csv('data/March-2022.csv')
+april_2022 <- read_csv('data/April-2022.csv')
+may_2022 <- read_csv('data/May-2022.csv')
+june_2022 <- read_csv('data/June-2022.csv')
+jan_2024 <- read_csv('data/Jan-2024.csv')
+feb_2024 <- read_csv('data/Feb-2024.csv')
+march_2024 <- read_csv('data/March-2024.csv')
+april_2024 <- read_csv('data/April-2024.csv')
+may_2024 <- read_csv('data/May-2024.csv')
+june_2024 <- read_csv('data/June-2024.csv')
+
+#bind rows 
+all_logs <- bind_rows(jan_2022, feb_2022, march_2022, april_2022, may_2022, june_2022, jan_2024, feb_2024, march_2024, april_2024, may_2024, june_2024) |> clean_names()
+```
+
+## **How many people have gone on tours in 2024?**
+
+```{r}
+tours_2024 <- bind_rows(jan_2024, feb_2024, march_2024, april_2024, may_2024, june_2024) |> clean_names() |>
+  filter(meeting_room == "EW TOUR")
+
+tours_2024 |> 
+  group_by(last_name, first_name, middle_initial) |> 
+  summarize(repeats = n()) |> 
+  arrange(desc(repeats))
+```
+
+Limitations of data set
+
+-   

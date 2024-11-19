@@ -1,0 +1,30 @@
+---
+title: "data_analysis_project"
+author: "Matt Cohen"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Analysis Project
+
+```{r}
+# load data 
+
+jan_2022 <- read_csv('data/Jan-2022.csv')
+feb_2022 <- read_csv('data/Feb-2022.csv')
+march_2022 <- read_csv('data/March-2022.csv')
+april_2022 <- read_csv('data/April-2022.csv')
+may_2022 <- read_csv('data/May-2022.csv')
+june_2022 <- read_csv('data/June-2022.csv')
+jan_2024 <- read_csv('data/Jan-2024.csv')
+feb_2024 <- read_csv('data/Feb-2024.csv')
+march_2024 <- read_csv('data/March-2024.csv')
+april_2024 <- read_csv('data/April-2024.csv')
+may_2024 <- read_csv('data/May-2024.csv')
+june_2024 <- read_csv('data/June-2024.csv')
+
+```
