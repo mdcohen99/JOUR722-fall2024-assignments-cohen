@@ -37,6 +37,20 @@ june_2024 <- read_csv('data/June-2024.csv')
 all_logs <- bind_rows(jan_2022, feb_2022, march_2022, april_2022, may_2022, june_2022, jan_2024, feb_2024, march_2024, april_2024, may_2024, june_2024) |> clean_names()
 ```
 
+## Description of Data
+
+-   The full data set includes visitors from the first six months of 2022 and the first six months of 2024 since data is only tracked this year so far through June. We picked these time frames because then we can compare the present year to the first year where life began to return to normal after the COVID-19 pandemic.
+
+-   The data includes names of visitors, visit times and dates, where the visit occurred, when the person scheduled the visit and several other columns that appear mostly irrelevant to important data analysis.
+
+## Flaws/Limits in Data
+
+-   In most, if not every, row(s) there is a a listing of a name under columns titled first names and last names, and then a different name under visitee first name and visitee last name. It's not abundantly clear what the difference is, but it is not the same name within the same row. So which name should we be tracking?
+
+-   There are several identical names listed in multiple rows with supposed appointments at the exact same time. First, why are there so many duplicates, and second how do we know that none of the duplicate examples are actually two different people who happened to have the exact same name and come at the same time. We can't assume one or the other. Also, how do we know which duplicates were intended versus mistakes? Are there spelling errors? If someone were to leave and come back in the same day, are they added to the list multiple times, or is there a glitch in the data that is causing this?
+
+## QUESTION 1 
+
 ## **How many people have gone on tours in 2024?**
 
 ```{r}
@@ -48,7 +62,3 @@ tours_2024 |>
   summarize(repeats = n()) |> 
   arrange(desc(repeats))
 ```
-
-Limitations of data set
-
--   
