@@ -127,7 +127,7 @@ unique_words |>
       labs(x = "Count",
       y = "Unique words",
       title = "Count of unique words found in Cardin releases") +
-  theme_minimal() +
+  theme_minimal() 
   
 ```
 

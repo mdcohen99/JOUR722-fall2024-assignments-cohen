@@ -49,7 +49,7 @@ all_logs <- bind_rows(jan_2022, feb_2022, march_2022, april_2022, may_2022, june
 
 -   There are several identical names listed in multiple rows with supposed appointments at the exact same time. First, why are there so many duplicates, and second how do we know that none of the duplicate examples are actually two different people who happened to have the exact same name and come at the same time. We can't assume one or the other. Also, how do we know which duplicates were intended versus mistakes? Are there spelling errors? If someone were to leave and come back in the same day, are they added to the list multiple times, or is there a glitch in the data that is causing this?
 
-## QUESTION 1 
+## QUESTION 1
 
 ## **How many people have gone on tours in 2024?**
 

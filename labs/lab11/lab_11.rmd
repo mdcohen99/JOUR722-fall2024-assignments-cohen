@@ -41,20 +41,42 @@ md_attorney_sanctions <- read_csv("data/md_attorney_sanctions.csv")
 
 ```{r}
 #Create list of unique words
-
+unique_words <- md_attorney_sanctions |> select(text) |>
+  unnest_tokens(word, text)
+View(unique_words)
 ```
 
 ```{r}
 #Load stop words
+data("stop_words")
 
+stop_words <- stop_words |> 
+  add_row(word = "attorney") |> 
+  add_row(word = "administration") |> 
+  add_row(word = "local") |>
+  add_row(word = "prepared") |>
+  add_row(word = "maryland") |>
+  add_row(word = 'sons') |> 
+  add_row(word = 'u.s') |> 
+  add_row(word = 'md') |> 
+  add_row(word = 'court') |> 
+  add_row(word = "original") |>
+  add_row(word = "account") |>
+  add_row(word = "respondent") |> 
+  add_row(word = "client") |> 
+  add_row(word = "representation")
 ```
 
 ```{r}
 #Remove stop words from unique words list
-
+unique_words |>
+  anti_join(stop_words) |>
+  group_by(word) |>
+  tally(sort=TRUE) |>
+  top_n(10)
 ```
 
-**A1.**
+**A1. Failing is the number one most frequent word. A lot of these words seem to describe shortcomings and punishments for mistakes that the lawyers made.**
 
 ------------------------------------------------------------------------
 
@@ -62,17 +84,44 @@ md_attorney_sanctions <- read_csv("data/md_attorney_sanctions.csv")
 
 ```{r}
 # Check the task 12 on Pre-lab 11 to see if you can use that code
-
+three_words <- md_attorney_sanctions |>
+  unnest_tokens(bigram, text, token = "ngrams", n = 3) |>
+  separate(bigram, c("word1", "word2", "word3"), sep = " ") |>
+  filter(!word1 %in% stop_words$word) |>
+  filter(!word2 %in% stop_words$word) |>
+  filter(!word3 %in% stop_words$word) |>
+  mutate(bigram = paste(word1, word2, word3, sep=" ")) |>
+  group_by(bigram) |>
+  tally(sort=TRUE) |>
+  top_n(10)
 ```
 
-**A2.**
+**A2. "conduct involving dishonesty" is the top trigram. It shows up 155 times. "dishonesty fraud deceit" also shows up 155 times.**
 
 ------------------------------------------------------------------------
 
 ##### **Q3.** Let's drop back down to more traditional text analysis - take the top trigram from Q2 and write code to see how many times it occurs in the text column in each fiscal year. What do you think the answer produced by your code suggests? What else could you do to try and clarify the most important reasons attorneys get sanctioned?
 
 ```{r}
+md_attorney_sanctions <- md_attorney_sanctions |>
+  mutate(
+    trigram = case_when(
+      str_detect(text, "conduct involving dishonesty") ~ "true",
+      str_detect(text, "dishonesty fraud deceit") ~ "true",
+      .default = "false"
+    )
+  )
+
+filtered_trigrams <- md_attorney_sanctions |>
+  filter(trigram == "true")
+
+filtered_trigrams |> 
+  group_by(fiscal_year) |>
+  summarize(count = n()) |>
+  arrange(desc(count))
+    
+  
 
 ```
 
-**A3.**
+**A3. My code shows how many times per year each of the two most frequent trigram appears in each fiscal year. This also tries to account for the possibility that a trigram might show up more than once in a specific row by just simply counting it as one if it appears at all. Now, we can see which years had the most frequent occurences of dishonesty, as both trigrams relate to that.**
