@@ -51,14 +51,33 @@ all_logs <- bind_rows(jan_2022, feb_2022, march_2022, april_2022, may_2022, june
 
 ## QUESTION 1
 
-## **How many people have gone on tours in 2024?**
+## **How many groups have gone on tours in 2024?**
 
 ```{r}
 tours_2024 <- bind_rows(jan_2024, feb_2024, march_2024, april_2024, may_2024, june_2024) |> clean_names() |>
   filter(meeting_room == "EW TOUR")
 
 tours_2024 |> 
-  group_by(last_name, first_name, middle_initial) |> 
-  summarize(repeats = n()) |> 
-  arrange(desc(repeats))
+  group_by(uin) |> 
+  summarize(persons_in_group = n()) |> 
+  arrange(desc(persons_in_group))
+```
+
+**Answer**: Each UIN number represents one unique group, and our summary shows 65,169 unique UIN entries. That means there are 65,169 total groups that went on tours in the first six months of 2024.
+
+## Question 2: How many tour groups go through the White House per day?
+
+```{r}
+tours_2024 <- tours_2024 |> 
+  mutate(new_date = mdy_hm(toa))
+```
+
+```{r}
+tours_2024 <- tours_2024 |> 
+  mutate(full_date = date(new_date))
+
+tours_2024 |> 
+  group_by(full_date) |> 
+  summarize(per_day = n()) |> 
+  arrange(desc(per_day))
 ```
