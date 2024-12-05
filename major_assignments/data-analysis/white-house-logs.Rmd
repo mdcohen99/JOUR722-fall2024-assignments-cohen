@@ -61,11 +61,97 @@ tours_2024 |>
   group_by(uin) |> 
   summarize(persons_in_group = n()) |> 
   arrange(desc(persons_in_group))
+
+total_24_tours <- 65169
 ```
 
 **Answer**: Each UIN number represents one unique group, and our summary shows 65,169 unique UIN entries. That means there are 65,169 total groups that went on tours in the first six months of 2024.
 
-## Question 2: How many tour groups go through the White House per day?
+## Question 2: Are more people going on tours in 2024 than 2022 — the first full year post-pandemic? Or fewer? What's the difference? 
+
+**Note**: We are comparing the first six months of 2024 vs 2022 because we only have the first six months of 2024.
+
+```{r}
+tours_2022 <- bind_rows(april_2022, may_2022, june_2022) |> clean_names() |>
+  filter(meeting_room == "EW TOUR")
+
+april22groups <- april_2022 |>
+  group_by(UIN) |>
+  summarize(persons_in_group = n()) |> 
+  arrange(desc(persons_in_group))
+
+may22groups <- may_2022 |>
+  group_by(UIN) |>
+  summarize(persons_in_group = n()) |> 
+  arrange(desc(persons_in_group))
+
+june22groups <- june_2022 |>
+  group_by(UIN) |>
+  summarize(persons_in_group = n()) |> 
+  arrange(desc(persons_in_group))
+
+april22rate <- 3210
+may22rate <- 4120
+june22rate <- 4138
+
+rate22 <- (april22rate + may22rate + june22rate)/3
+
+april24groups <- april_2024 |>
+  group_by(UIN) |>
+  summarize(persons_in_group = n()) |> 
+  arrange(desc(persons_in_group))
+
+may24groups <- may_2024 |>
+  group_by(UIN) |>
+  summarize(persons_in_group = n()) |> 
+  arrange(desc(persons_in_group))
+
+june24groups <- june_2024 |>
+  group_by(UIN) |>
+  summarize(persons_in_group = n()) |> 
+  arrange(desc(persons_in_group))
+
+april24rate <- 16672
+may24rate <- 16876
+june24rate <- 18716
+
+rate24 <- (april24rate + may24rate + june24rate)/3
+
+rate24 - rate22
+  
+```
+
+Answer: There was an average of 13,598.67 more tours per month between April-June 2024 than in the same 2022 time frame. We limited the dataset to this count because the White House did not allow tours because of the pandemic until April 2022, and we only have data through June in 2024. Clearly, there was either restricted/limited access in the immediate aftermath of the post-covid reopening, or a hesitation from potential visitors to go because of the pandemic. The tour rate has certainly rebounded since the pandemic reaching more than 17,400 tour groups per month in the three month time frame in 2024.
+
+## Question 3: How many people visited the Oval Office in 2024? Who are they? 
+
+```{r}
+
+biden_2022 <- bind_rows(jan_2022, feb_2022, march_2022, april_2022, may_2022, june_2022) |> clean_names()
+
+
+biden_2022 <- biden_2022 |>
+  mutate(biden = case_when(
+    str_detect(visitee_namelast, "POTUS") ~ "Yes",
+    str_detect(visitee_namelast, "President") ~ "Yes",
+    str_detect(visitee_namelast, "Biden") ~ "Yes",
+    .default = "No",
+  ))
+
+who_showed_up <- biden_2022 |>
+  filter(biden == "Yes") |>
+  group_by(namelast, namefirst, namemid) |> 
+  summarise(times_visited = n()) |> 
+  arrange(desc(times_visited))
+
+who_showed_up
+```
+
+There appear to be more than 300 individuals who met with Biden in the first six months of 2022, the time period where the White House began to reopen to the public following the pandemic. We scrolled through the names on the list to see if there is any interesting or known names. We saw Karl Anthony Towns (NBA basketball player) and Jordyn Woods (public figure) on the list. The two used to date, and visited the White House in May of 2022 to honor George Floyd. At the time, both lived in Minnesota. Minnesota Sen. Amy Klobuchar also visited the POTUS and so did local Maryland rep. Jamie Raskin. We also saw "Michael J Jordan" on the list, and while that is the correct middle initial for the Chicago Bulls legend, we cannot confirm if that is indeed him.
+
+## How many tour groups go through the White House per day? 
+
+(still working on this one)
 
 ```{r}
 tours_2024 <- tours_2024 |> 
