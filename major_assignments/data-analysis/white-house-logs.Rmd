@@ -18,6 +18,7 @@ library(tidyverse)
 library(janitor) 
 library(tidycensus)
 library(lubridate)
+library(readr)
 
 #load data
 jan_2022 <- read_csv('data/Jan-2022.csv')
@@ -67,7 +68,7 @@ total_24_tours <- 65169
 
 **Answer**: Each UIN number represents one unique group, and our summary shows 65,169 unique UIN entries. That means there are 65,169 total groups that went on tours in the first six months of 2024.
 
-## Question 2: Are more people going on tours in 2024 than 2022 — the first full year post-pandemic? Or fewer? What's the difference? 
+## Question 2: Are more people going on tours in 2024 than 2022 — the first full year post-pandemic? Or fewer? What's the difference?
 
 **Note**: We are comparing the first six months of 2024 vs 2022 because we only have the first six months of 2024.
 
@@ -123,7 +124,7 @@ rate24 - rate22
 
 Answer: There was an average of 13,598.67 more tours per month between April-June 2024 than in the same 2022 time frame. We limited the dataset to this count because the White House did not allow tours because of the pandemic until April 2022, and we only have data through June in 2024. Clearly, there was either restricted/limited access in the immediate aftermath of the post-covid reopening, or a hesitation from potential visitors to go because of the pandemic. The tour rate has certainly rebounded since the pandemic reaching more than 17,400 tour groups per month in the three month time frame in 2024.
 
-## Question 3: How many people visited the Oval Office in 2024? Who are they? 
+## Question 3: How many people visited the Oval Office in 2024? Who are they?
 
 ```{r}
 
@@ -149,21 +150,49 @@ who_showed_up
 
 There appear to be more than 300 individuals who met with Biden in the first six months of 2022, the time period where the White House began to reopen to the public following the pandemic. We scrolled through the names on the list to see if there is any interesting or known names. We saw Karl Anthony Towns (NBA basketball player) and Jordyn Woods (public figure) on the list. The two used to date, and visited the White House in May of 2022 to honor George Floyd. At the time, both lived in Minnesota. Minnesota Sen. Amy Klobuchar also visited the POTUS and so did local Maryland rep. Jamie Raskin. We also saw "Michael J Jordan" on the list, and while that is the correct middle initial for the Chicago Bulls legend, we cannot confirm if that is indeed him.
 
-## How many tour groups go through the White House per day? 
-
-(still working on this one)
+## Question 4: Are there any matches between White House visitor logs and individual campaign contributions in FEC data?
 
 ```{r}
-tours_2024 <- tours_2024 |> 
-  mutate(new_date = mdy_hm(toa))
+
+#link to fec data bulk data: https://www.fec.gov/files/bulk-downloads/2024/indiv24.zip .... after downloading that zip folder, we used the sample of the dataset that encompassed February-March in 2024 and renamed it 'indy_contributions'
+
+#eliminate comment on below line of code to run
+#fec_data <- read_delim('data/indy_contributions.txt', delim="|", col_names=FALSE) |> rename(full_name = X8) |> clean_names()
+
+fec_data <- fec_data |> 
+  mutate_all(funs(str_replace_all(.,'[\\.,]','')))
+
+all_logs <- all_logs |>
+  mutate(full_name = paste(namelast, namefirst, namemid, collapse = NULL))
+
+match_names <- inner_join(fec_data, all_logs, join_by(full_name)) |> rename(state = x10)
+
+unique_names <- match_names |>
+  group_by(full_name, state) |> 
+  summarize(repeats = n()) |>
+  arrange(desc(repeats))
+
+unique_names
+
+```
+
+We found that there are 354 matches between the White House log data and individual campaign contributors. Notably, the data of campaign contributions is just a sample of February and March 2024. The FEC data also does not show which candidate these individuals are just donating to, just the fact that they donated. After joining the data and mutating the columns to have the data align as best we could, we found 354 matches out of a FEC data set that originally included almost two million donors. There are some potential flaws here because some names had prefixes included in the FEC data set, so there could be some false matches and also some false examples that did not match because of how dirty the data was.
+
+These name matches represent 0.07% of all the names in the White House visitor logs. So fewer than 1% of all White House visitors also made political donations — albeit just using the sample of this time period.
+
+## Questions 5: Now that we know unique names repeat, where are the most frequent White House visitors who are also donating coming from?
+
+```         
 ```
 
 ```{r}
-tours_2024 <- tours_2024 |> 
-  mutate(full_date = date(new_date))
+locations <- unique_names |> 
+  group_by(state) |> 
+  summarize(total_donations_by_state = n()) |> 
+  arrange(desc(total_donations_by_state))
 
-tours_2024 |> 
-  group_by(full_date) |> 
-  summarize(per_day = n()) |> 
-  arrange(desc(per_day))
+locations
+  
 ```
+
+Perhaps expectedly, Washington D.C. has the most White House visitors who are also donating. Of course that can be explained by convience to the White House and the fact that this area is so politically active. Maryland and Virginia are also in the top four. The other top four state is California, the largest population of democrats in any one state. There are two swing states on this list, Pennsylvania and Michigan. Interestingly, Texas is above several more blue states like New York, Illinois and Washington.
