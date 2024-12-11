@@ -124,7 +124,7 @@ rate24 - rate22
 
 Answer: There was an average of 13,598.67 more tours per month between April-June 2024 than in the same 2022 time frame. We limited the dataset to this count because the White House did not allow tours because of the pandemic until April 2022, and we only have data through June in 2024. Clearly, there was either restricted/limited access in the immediate aftermath of the post-covid reopening, or a hesitation from potential visitors to go because of the pandemic. The tour rate has certainly rebounded since the pandemic reaching more than 17,400 tour groups per month in the three month time frame in 2024.
 
-## Question 3: How many people visited the Oval Office in 2024? Who are they?
+## Question 3: How many people visited the Oval Office in 2022? Who are they?
 
 ```{r}
 
