@@ -51,7 +51,7 @@ md_counties <- counties() |>  filter(STATEFP == "24")
 joined_data <- md_counties |> left_join(childcare_inspections, join_by(geoid == fips))
 ```
 
-##### A1: We have to use the full name of the column "NAMELSAD" because it includes the full names for county and more importantly for Baltimore City. The other column writes baltimore twice for baltimore city and county, but we need to account of that potential duplicate if not careful. 
+##### A1: We have to use the full name of the column "NAMELSAD" because it includes the full names for county and more importantly for Baltimore City. The other column writes baltimore twice for baltimore city and county, but we need to account of that potential duplicate if not careful.
 
 ------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ joined_data |>
 ) 
 ```
 
-##### **A2: Montgomery County has the most overdue childcare facility inspections** 
+##### **A2: Montgomery County has the most overdue childcare facility inspections**
 
 ------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ acs_joined |>
 acs_joined
 ```
 
-##### **A3: Garrett County has the most children per facility.** 
+##### **A3: Garrett County has the most children per facility.**
 
 ------------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ ggplot() +
   theme_minimal() 
 ```
 
-##### **A4**: Some of the coutnies with the lowest number of children per facility are also some of the lesser populated, rural Eastern Maryland counties. The urban counties seem to have more children per facility but then the clear exception of Garrett County in the western edge of the state. 
+##### **A4**: Some of the coutnies with the lowest number of children per facility are also some of the lesser populated, rural Eastern Maryland counties. The urban counties seem to have more children per facility but then the clear exception of Garrett County in the western edge of the state.
 
 ------------------------------------------------------------------------
 
@@ -210,4 +210,4 @@ reports |>
   top_n(10)
 ```
 
-##### A6: There appear to be some significant repeated issues here with regard to missing an "emergency bag" albeit unclear what that means, emergency seems important. Also issues with smoke detectors is a huge problem. Same with outlet coverings because that's a fire hazard. 
+##### A6: There appear to be some significant repeated issues here with regard to missing an "emergency bag" albeit unclear what that means, emergency seems important. Also issues with smoke detectors is a huge problem. Same with outlet coverings because that's a fire hazard.
